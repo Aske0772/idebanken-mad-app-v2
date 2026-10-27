@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { DishArt } from './ui.jsx';
 import { X, Plus, Undo, Store } from './icons.jsx';
 import { heroOffers, portionPrice } from '../lib/pricing.js';
+import { rankDeck } from '../lib/rank.js';
 import { krSmall } from '../lib/format.js';
 
 const FILTERS = [
@@ -21,24 +22,26 @@ const passes = (filter, recipe, saved) => {
   return filter === 'alle' || recipe.diet === filter;
 };
 
-export function SwipeView({ data, prefs, setPrefs, seen, onSkip, onLike, onUndo, canUndo, onOpen, onStores, onReset }) {
+export function SwipeView({ data, prefs, setPrefs, seen, past, onSkip, onLike, onUndo, canUndo, onOpen, onStores, onReset }) {
   const storesById = useMemo(() => Object.fromEntries(data.stores.map((s) => [s.id, s])), [data]);
   const filter = FILTERS.some((f) => f.id === prefs.diet) ? prefs.diet : 'alle';
   const saved = prefs.saved ?? [];
 
   // This week's deck: dishes with a hero ingredient on offer in the chosen stores,
-  // cheapest portion first. Saved dishes show up under "Gemte" even without an offer.
+  // ranked by price and discount, with dishes from the last weeks resting at the
+  // back (lib/rank.js). Saved dishes show up under "Gemte" even without an offer,
+  // cheapest first.
   const deck = useMemo(() => {
-    return data.recipes
+    const items = data.recipes
       .filter((r) => !seen.includes(r.id) && passes(filter, r, saved))
       .map((r) => ({
         recipe: r,
         heroes: heroOffers(data, r, prefs.stores),
         price: portionPrice(data, r, prefs.stores, prefs.people, prefs.atHome)
-      }))
-      .filter((x) => filter === 'gemte' || x.heroes.length > 0)
-      .sort((a, b) => a.price - b.price);
-  }, [data, prefs.stores, prefs.people, prefs.atHome, filter, saved, seen]);
+      }));
+    if (filter === 'gemte') return items.sort((a, b) => a.price - b.price);
+    return rankDeck(data, items.filter((x) => x.heroes.length > 0), { week: data.week, past });
+  }, [data, prefs.stores, prefs.people, prefs.atHome, filter, saved, seen, past]);
 
   const [fling, setFling] = useState(null);
   const top = deck[0];

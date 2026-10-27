@@ -57,7 +57,7 @@ web/
   src/components/       Onboarding, SwipeView (fotokort), DishDetail (glaspanel), WeekView, ListView
 ```
 
-**Hvilke retter vises?** En ret kommer i bunken, når mindst én af dens hero-ingredienser (fx kyllingebryst i kylling i karry) er på tilbud i en af dine butikker. Bunken sorteres efter pris pr. portion.
+**Hvilke retter vises?** En ret kommer i bunken, når mindst én af dens hero-ingredienser (fx kyllingebryst i kylling i karry) er på tilbud i en af dine butikker. Bunken sorteres efter pris pr. portion, trukket frem af tilbudsdybden (tilbudspris mod avisens førpris eller kædernes hyldepris). Retter du planlagde de to forrige uger hviler bagerst, medmindre de er på et tilbud med mindst 50 % rabat. Historikken gemmes kun på telefonen (`web/src/lib/rank.js`).
 
 **Hvordan regnes prisen?** For hver ingrediens: mængde × personer × dage ÷ opskriftens portioner, altid købt i hele pakker. På indkøbslisten lægges mængderne sammen på tværs af retter, så to retter med løg deler ét net.
 

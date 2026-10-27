@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { fetchWeek } from './lib/api.js';
 import { usePersistent } from './lib/persist.js';
 import { shoppingList } from './lib/pricing.js';
+import { archiveWeek } from './lib/rank.js';
 import { Onboarding } from './components/Onboarding.jsx';
 import { SwipeView } from './components/SwipeView.jsx';
 import { DishDetail } from './components/DishDetail.jsx';
@@ -14,6 +15,8 @@ import { Cards, Calendar, List } from './components/icons.jsx';
 const PREFS = { onboarded: false, stores: [], people: 2, diet: 'alle', atHome: [], saved: [] };
 // Weekly state is tagged with the ISO week and starts fresh when the avis changes.
 const WEEK = { week: null, plan: [], seen: [], checked: [] };
+// Dishes planned in earlier weeks, so the deck can rest them for a while. Stays on the phone.
+const PAST = { weeks: {} };
 
 export default function App() {
   const [data, setData] = useState(null);
@@ -21,6 +24,7 @@ export default function App() {
   const [waiting, setWaiting] = useState(false);
   const [prefs, setPrefs] = usePersistent('mad.prefs', PREFS);
   const [state, setState] = usePersistent('mad.week', WEEK);
+  const [past, setPast] = usePersistent('mad.history', PAST);
   const [tab, setTab] = useState('swipe');
   const [sheet, setSheet] = useState(null); // { recipe, item?, mode, fromSwipe? }
   const [storesOpen, setStoresOpen] = useState(false);
@@ -49,8 +53,11 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (data && state.week !== data.week) setState({ ...WEEK, week: data.week });
-  }, [data, state.week, setState]);
+    if (!data || state.week === data.week) return;
+    // A new avis week: remember what was planned before starting fresh.
+    setPast((p) => archiveWeek(p, state.week, state.plan.map((i) => i.recipeId)));
+    setState({ ...WEEK, week: data.week });
+  }, [data, state.week, state.plan, setState, setPast]);
 
   const list = useMemo(
     () => (data ? shoppingList(data, state.plan, { stores: prefs.stores, atHome: prefs.atHome }) : null),
@@ -141,7 +148,7 @@ export default function App() {
       <main className="main">
         {tab === 'swipe' && (
           <SwipeView
-            data={data} prefs={prefs} setPrefs={setPrefs} seen={state.seen}
+            data={data} prefs={prefs} setPrefs={setPrefs} seen={state.seen} past={past}
             onSkip={onSkip} onLike={onLike} onUndo={onUndo} canUndo={history.length > 0}
             onOpen={(recipe) => setSheet({ recipe, mode: 'add' })}
             onStores={() => setStoresOpen(true)}
