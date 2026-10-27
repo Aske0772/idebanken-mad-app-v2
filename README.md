@@ -35,15 +35,18 @@ npm run dev
 | `npm run build && npm start` | Produktionsbuild serveret af API'et på port 8787 |
 | `npm run export --prefix server -- <mappe>` | Hent ugens priser og skriv `week.json` + billeder til en mappe (statisk version) |
 
-Miljøvariabler: `API_PORT` (8787), `LAT`/`LNG` (standard: København) til tilbud for et område, `DB_FILE`. Til webbuildet: `BASE_PATH` (sti appen ligger under) og `VITE_WEEK_URL` (hent ugen fra en statisk fil i stedet for `/api/week`).
+Miljøvariabler: `API_PORT` (8787), `LAT`/`LNG` (standard: København) til tilbud for et område, `DB_FILE`, `CONTACT_EMAIL` (kontakt i User-Agent, se [docs/datahentning.md](docs/datahentning.md)), `DISABLED_SOURCES` (nødbremse: `tjek`, `rema`, `lidl`), `REFRESH_HOURS` (standard 24). Til webbuildet: `BASE_PATH` (sti appen ligger under) og `VITE_WEEK_URL` (hent ugen fra en statisk fil i stedet for `/api/week`).
 
-**GitHub Pages:** `.github/workflows/pages.yml` bygger en statisk version uden server: appen bygges med `BASE_PATH=/idebanken-mad-app/`, og ugens priser hentes i workflowet og lægges ved som `week.json`. Den kører ved hvert push til main og hver 6. time. Kræver, at Pages-kilden i repoets indstillinger står til "GitHub Actions".
+**GitHub Pages:** `.github/workflows/pages.yml` bygger en statisk version uden server: appen bygges med `BASE_PATH=/idebanken-mad-app/`, og ugens priser hentes i workflowet og lægges ved som `week.json`. Den kører ved hvert push til main og én gang i døgnet. Kræver, at Pages-kilden i repoets indstillinger står til "GitHub Actions".
 
 ## Sådan hænger det sammen
 
 ```
 server/
-  src/sources/tjek.js   henter tilbud (eTilbudsavis' offentlige API)
+  src/sources/http.js   én høflig HTTP-klient til alle kilder (User-Agent, pauser, blokering)
+  src/sources/tjek.js   henter tilbud (eTilbudsavis' offentlige API) – kun fakta, førpris fra teksten
+  src/sources/rema.js   REMA 1000's hyldepriser (eget webshop-API)
+  src/sources/lidl.js   Lidls faste priser (lidl.dk)
   src/ingredients.js    ~70 ingredienser: enhed, normalpris, regex til at genkende tilbud
   src/match.js          tilbud → ingrediens, inkl. enhedsomregning (kg ↔ stk) og prisfornuftstjek
   src/recipes.js        34 egne opskrifter med "hero"-ingredienser
@@ -70,7 +73,7 @@ web/
 
 Kun `tilbud` afgør, hvilke retter der kommer i bunken. Vejledende/anslåede beløb vises separat ("heraf ca. 113 kr …"), så brugeren ved præcis, hvad der er sikkert.
 
-**Friskhed:** serveren henter alt igen, når data er over 6 timer gammelt (`REFRESH_HOURS`), og tjekker hver time. Appen henter nye priser, når den åbnes igen, og hvert 15. minut. "Priser opdateret i dag kl. 10.35" står på uge- og indkøbssiden.
+**Friskhed:** serveren henter alt igen højst én gang i døgnet (`REFRESH_HOURS`, standard 24) og ved ugeskift, og tjekker hver time om det er tid. Udløbne tilbud forsvinder af sig selv via deres datoer. En kilde, der fejler eller blokerer, beholder sine sidste gyldige priser, også over et ugeskift. Appen henter nye priser, når den åbnes igen, og hvert 15. minut. "Priser opdateret i dag kl. 10.35" står på uge- og indkøbssiden.
 
 **Billeder:** Læg `<opskrift-id>.jpg|webp|png` i `server/data/images/`, så bruges de automatisk. Indtil da tegner appen en farvet tallerken pr. ret. Prompts til AI-genererede close-up-fotos (Nano Banana Pro via Figma Weave) ligger i `server/data/image-prompts.json`.
 
@@ -78,7 +81,7 @@ Kun `tilbud` afgør, hvilke retter der kommer i bunken. Vejledende/anslåede bel
 
 ## Datakilde – vigtigt
 
-Tilbuddene hentes fra Tjek's (eTilbudsavis') offentlige API uden nøgle, og hyldepriser fra REMA 1000's offentlige webshop-API og Lidls produktsider på lidl.dk. Det er fint til en prototype, men **ikke** til en app i drift: få en licens (Tjek sælger API-adgang) eller aftaler med kæderne, før appen udgives – eller brug PDF-avis-versionen. Kilden er isoleret i `server/src/sources/`, så den kan skiftes ud. Se [docs/kilder-pr-kaede.md](docs/kilder-pr-kaede.md) for hver kædes egne kilder.
+Tilbuddene hentes fra Tjek's (eTilbudsavis') offentlige API uden nøgle, og hyldepriser fra REMA 1000's offentlige webshop-API og Lidls produktsider på lidl.dk. Det er fint til en prototype, men **ikke** til en app i drift: få en licens (Tjek sælger API-adgang) eller aftaler med kæderne, før appen udgives – eller brug PDF-avis-versionen. Kilden er isoleret i `server/src/sources/`, så den kan skiftes ud. Se [docs/kilder-pr-kaede.md](docs/kilder-pr-kaede.md) for hver kædes egne kilder, og [docs/datahentning.md](docs/datahentning.md) for reglerne vi henter efter (ærlig User-Agent, højst én hentning i døgnet, kun fakta, automatisk pause ved blokering, nødbremsen `DISABLED_SOURCES` og hvad vi gør ved et påkrav).
 
 ## Mambeno-analysen
 

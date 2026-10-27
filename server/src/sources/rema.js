@@ -1,29 +1,28 @@
 // Shelf prices: REMA 1000's public webshop API lists the whole assortment with
 // current prices and validity dates. We use it as the real "normal price" for
-// ingredients that aren't on offer. Same prototype caveat as tjek.js.
+// ingredients that aren't on offer. Same prototype caveat as tjek.js. Only facts
+// are kept (name, pack size, price, validity); no images.
+
+import { politeFetch } from './http.js';
 
 const BASE = 'https://api.digital.rema1000.dk/api/v3';
 // Food departments only (bread, produce, meat/fish, chilled, frozen, dairy, cheese, groceries).
 const DEPARTMENTS = [10, 20, 30, 40, 50, 60, 70, 80];
 export const REMA_STORE_ID = '11deC';
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export async function fetchRemaShelf() {
   const products = [];
   for (const dept of DEPARTMENTS) {
     for (let page = 1; page < 50; page++) {
-      const res = await fetch(`${BASE}/departments/${dept}/products?per_page=100&page=${page}`, {
-        headers: { accept: 'application/json', 'user-agent': 'idebanken-mad-app/0.1 (prototype)' },
-        signal: AbortSignal.timeout(20000)
+      const res = await politeFetch(`${BASE}/departments/${dept}/products?per_page=100&page=${page}`, {
+        label: `REMA afdeling ${dept} side ${page}`
       });
-      if (!res.ok) throw new Error(`REMA afdeling ${dept} side ${page}: HTTP ${res.status}`);
       const body = await res.json();
       for (const p of body.data) {
         const product = normalizeProduct(p);
         if (product) products.push(product);
       }
       if (page >= body.meta.pagination.last_page) break;
-      await sleep(150);
     }
   }
   return products;
@@ -41,7 +40,7 @@ export function normalizeProduct(p) {
     price: price.price,
     prePrice: null,
     quantity: parseSize(p.underline),
-    image: p.images?.[0]?.small ?? null,
+    image: null,
     runFrom: iso(price.starting_at),
     runTill: iso(price.ending_at)
   };

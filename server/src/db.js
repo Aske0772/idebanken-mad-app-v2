@@ -32,6 +32,9 @@ export function openDb(file = process.env.DB_FILE ?? join(DATA_DIR, 'mad.db')) {
       id TEXT PRIMARY KEY, title TEXT, blurb TEXT, minutes INTEGER, diet TEXT,
       serves INTEGER, emoji TEXT, hue INTEGER, image TEXT, data TEXT
     );
+    CREATE TABLE IF NOT EXISTS source_runs (
+      source TEXT PRIMARY KEY, ran_at TEXT, ok INTEGER, note TEXT
+    );
     CREATE TABLE IF NOT EXISTS week_recipes (
       week TEXT, recipe_id TEXT, hero_offers TEXT, store_ids TEXT,
       PRIMARY KEY (week, recipe_id)

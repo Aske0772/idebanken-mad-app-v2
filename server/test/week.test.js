@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { openDb } from '../src/db.js';
 import { refreshWeek, weekPayload, weekKey, offerKind } from '../src/week.js';
+import { SourceBlockedError } from '../src/sources/http.js';
 
 const day = 86400000;
 const at = (offsetDays) => new Date(Date.now() + offsetDays * day).toISOString();
@@ -120,4 +121,75 @@ test('offerKind splits weekly avis from long-running catalogs', () => {
   assert.equal(offerKind({ runFrom: at(0), runTill: at(7) }), 'tilbud');
   assert.equal(offerKind({ runFrom: at(0), runTill: at(60) }), 'fast');
   assert.equal(offerKind({ runFrom: null, runTill: at(3) }), 'fast');
+});
+
+test('a source switched off with DISABLED_SOURCES is not called and keeps its prices', async () => {
+  const db = openDb(':memory:');
+  await refresh(db);
+  process.env.DISABLED_SOURCES = 'tjek, rema';
+  try {
+    let calls = 0;
+    await refresh(db, {
+      fetchOffers: async () => { calls++; return []; },
+      fetchShelves: { ...SHELVES, '11deC': async () => { calls++; return SHELF; } }
+    });
+    assert.equal(calls, 0);
+  } finally {
+    delete process.env.DISABLED_SOURCES;
+  }
+  const payload = weekPayload(db, weekKey());
+  assert.equal(payload.offers.kyllingebryst[0].store, '9ba51');
+  assert.equal(payload.offers.ris[0].price, 11.95);
+  assert.match(payload.errors.join(), /tjek: slået fra/);
+  assert.match(payload.errors.join(), /rema: slået fra/);
+  assert.equal(payload.sources.find((s) => s.id === 'lidl').ok, true);
+});
+
+test('a source that blocks us is left alone for a day, then tried again', async () => {
+  const db = openDb(':memory:');
+  const t0 = Date.now();
+  await refresh(db, { now: () => t0 });
+  let calls = 0;
+  const blocked = async () => { calls++; throw new SourceBlockedError('https://squid-api.tjek.com/v2/offers', 403); };
+
+  await refresh(db, { fetchOffers: blocked, now: () => t0 + 1000 });
+  assert.equal(calls, 1, 'stops after the first store is blocked');
+  let payload = weekPayload(db, weekKey());
+  assert.equal(payload.offers.kyllingebryst[0].store, '9ba51', 'last good offers survive');
+  assert.match(payload.sources.find((s) => s.id === 'tjek').note, /blokeret \(HTTP 403\)/);
+
+  await refresh(db, { fetchOffers: blocked, now: () => t0 + 2 * 3600_000 });
+  assert.equal(calls, 1, 'not called again inside the cooldown');
+  payload = weekPayload(db, weekKey());
+  assert.match(payload.errors.join(), /tjek: blokeret .* pause til/);
+
+  await refresh(db, { fetchOffers: blocked, now: () => t0 + 25 * 3600_000 });
+  assert.equal(calls, 2, 'tried again after the cooldown');
+});
+
+test('valid prices are carried into a new week when a store cannot be reached', async () => {
+  const db = openDb(':memory:');
+  const lastWeek = Date.now() - 7 * day;
+  // Last week: a Netto tilbud still valid for a few more days, and REMA shelf prices.
+  await refresh(db, {
+    fetchOffers: async (id) => (id === '9ba51' ? [offer('n1', '9ba51', 'Dansk kyllingebrystfilet', 25, 0.4, at(-8), at(3)),
+      offer('n2', '9ba51', 'Dansk laksefilet', 50, 0.5, at(-8), at(-1))] : FAKE[id] ?? []),
+    now: () => lastWeek
+  });
+  // This week: Netto and REMA are down; Lidl answers.
+  await refresh(db, {
+    fetchOffers: async (id) => { if (id === '9ba51') throw new Error('nede'); return FAKE[id] ?? []; },
+    fetchShelves: { ...SHELVES, '11deC': async () => { throw new Error('nede'); } }
+  });
+  const payload = weekPayload(db, weekKey());
+  const netto = Object.values(payload.offers).flat().filter((o) => o.store === '9ba51');
+  assert.deepEqual(netto.map((o) => o.id), ['n1'], 'only the still-valid tilbud is carried');
+  assert.equal(payload.offers.ris[0].price, 11.95, 'shelf prices carried too');
+  assert.ok(payload.recipes.find((r) => r.id === 'kylling-i-karry').inWeek, 'carried tilbud still unlock dishes');
+});
+
+test('offers in the payload carry no images', async () => {
+  const db = openDb(':memory:');
+  const payload = weekPayload(db, await refresh(db));
+  assert.ok(Object.values(payload.offers).flat().every((o) => !('image' in o)));
 });

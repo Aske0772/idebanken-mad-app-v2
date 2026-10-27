@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { STORES } from './stores.js';
 import { INGREDIENTS, CATEGORIES } from './ingredients.js';
 import { fetchDealerOffers } from './sources/tjek.js';
+import { isDisabled, SourceBlockedError } from './sources/http.js';
 import { fetchRemaShelf, REMA_STORE_ID } from './sources/rema.js';
 import { fetchLidlShelf, LIDL_STORE_ID } from './sources/lidl.js';
 import { matchOffer } from './match.js';
@@ -40,46 +41,84 @@ const location = () => ({
 
 // Chains whose everyday (shelf) prices we can read, by store id.
 export const SHELF_SOURCES = { [REMA_STORE_ID]: fetchRemaShelf, [LIDL_STORE_ID]: fetchLidlShelf };
+// Source names, used by the DISABLED_SOURCES kill switch and the source_runs log.
+export const OFFER_SOURCE = 'tjek';
+const SHELF_SOURCE_NAMES = { [REMA_STORE_ID]: 'rema', [LIDL_STORE_ID]: 'lidl' };
+// A source that blocks us (401/403/429) is left alone for this long.
+const BLOCK_COOLDOWN_HOURS = Number(process.env.BLOCK_COOLDOWN_HOURS ?? 24);
 
 const storeName = (id) => STORES.find((s) => s.id === id)?.name ?? id;
 
-// Scrape every store's avis plus the shelf prices we have, match them to
-// ingredients and store the week's dishes. A store or shelf source that fails
-// keeps its last good prices.
+// Why a source must not be called right now, or null when it may.
+export function sourcePause(db, source, now = Date.now()) {
+  if (isDisabled(source)) return `${source}: slået fra (DISABLED_SOURCES)`;
+  const run = db.prepare('SELECT ran_at, ok, note FROM source_runs WHERE source = ?').get(source);
+  if (!run || run.ok || !/blokeret/.test(run.note ?? '')) return null;
+  const until = Date.parse(run.ran_at) + BLOCK_COOLDOWN_HOURS * 3600_000;
+  if (now >= until) return null;
+  return `${source}: ${run.note} – pause til ${new Date(until).toISOString()}`;
+}
+
+// Fetch every store's avis plus the shelf prices we have, match them to
+// ingredients and store the week's dishes. A source that fails, blocks us or is
+// switched off keeps its last good prices: those still valid are carried into
+// the new week, so the app never empties because one host went dark.
 export async function refreshWeek(db, {
   fetchOffers = fetchDealerOffers,
   fetchShelves = SHELF_SOURCES,
-  log = console.log
+  log = console.log,
+  now = () => Date.now()
 } = {}) {
-  const week = weekKey();
+  const week = weekKey(new Date(now()));
   const errors = [];
   const offers = [];
   const fetched = new Set();
-  for (const store of STORES) {
-    try {
-      const got = await fetchOffers(store.id, location());
-      log(`  ${store.name.padEnd(14)} ${got.length} tilbud`);
-      offers.push(...got);
-      fetched.add(store.id);
-    } catch (err) {
-      errors.push(`${store.name}: ${err.message}`);
-      log(`  ${store.name.padEnd(14)} FEJL ${err.message}`);
+  const runs = []; // [source, ok, note]
+
+  const offerPause = sourcePause(db, OFFER_SOURCE, now());
+  if (offerPause) {
+    errors.push(offerPause);
+    log(`  ${offerPause}`);
+  } else {
+    let blocked = null;
+    for (const store of STORES) {
+      if (blocked) break; // one block is enough: stop knocking on that door
+      try {
+        const got = await fetchOffers(store.id, location());
+        log(`  ${store.name.padEnd(14)} ${got.length} tilbud`);
+        offers.push(...got);
+        fetched.add(store.id);
+      } catch (err) {
+        if (err instanceof SourceBlockedError) blocked = err.message;
+        errors.push(`${store.name}: ${err.message}`);
+        log(`  ${store.name.padEnd(14)} FEJL ${err.message}`);
+      }
     }
+    const ok = !blocked && fetched.size > 0;
+    runs.push([OFFER_SOURCE, ok ? 1 : 0, blocked ?? (ok ? null : 'ingen butik svarede')]);
   }
-  if (offers.length === 0) throw new Error(`Ingen tilbud hentet. ${errors.join('; ')}`);
 
   const shelf = [];
   const shelfFetched = new Set();
   for (const [storeId, fetchShelf] of Object.entries(fetchShelves)) {
+    const source = SHELF_SOURCE_NAMES[storeId] ?? storeId;
     const label = `${storeName(storeId)} hyldepriser`;
+    const pause = sourcePause(db, source, now());
+    if (pause) {
+      errors.push(pause);
+      log(`  ${pause}`);
+      continue;
+    }
     try {
       const got = await fetchShelf();
       log(`  ${label} ${got.length} varer`);
       shelf.push(...got);
       shelfFetched.add(storeId);
+      runs.push([source, 1, null]);
     } catch (err) {
       errors.push(`${label}: ${err.message}`);
       log(`  ${label} FEJL ${err.message}`);
+      runs.push([source, 0, err.message]);
     }
   }
 
@@ -94,12 +133,17 @@ export async function refreshWeek(db, {
   const insertMatch = db.prepare(
     'INSERT OR REPLACE INTO offer_matches (offer_id, week, ingredient_id, amount, assumed) VALUES (?, ?, ?, ?, ?)'
   );
+  const upsertRun = db.prepare(
+    'INSERT OR REPLACE INTO source_runs (source, ran_at, ok, note) VALUES (?, ?, ?, ?)'
+  );
+  // Only facts are stored: name, pack size, price, before-price, validity. Never images.
   const store = (o, kind, matches) => {
     insertOffer.run(o.id, week, o.storeId, o.heading, o.description, o.price, o.prePrice,
-      o.image, o.runFrom, o.runTill, kind);
+      null, o.runFrom, o.runTill, kind);
     for (const m of matches) insertMatch.run(o.id, week, m.ingredientId, m.amount, m.assumed ? 1 : 0);
   };
 
+  const nowIso = new Date(now()).toISOString();
   db.exec('BEGIN');
   try {
     for (const s of STORES) upsertStore.run(s.id, s.slug, s.name, s.color);
@@ -112,23 +156,30 @@ export async function refreshWeek(db, {
     for (const storeId of fetched) clear("store_id = ? AND kind != 'hylde'", storeId);
     for (const storeId of shelfFetched) clear("store_id = ? AND kind = 'hylde'", storeId);
     db.prepare('DELETE FROM week_recipes WHERE week = ?').run(week);
-    const counts = { tilbud: 0, fast: 0, hylde: 0 };
     for (const o of offers) {
       const matches = matchOffer(o);
       if (matches.length === 0) continue; // only food we can cook with is kept
-      const kind = offerKind(o);
-      counts[kind]++;
-      store(o, kind, matches);
+      store(o, offerKind(o), matches);
     }
     for (const p of shelf) {
       const matches = matchOffer(p, { shelf: true });
       if (matches.length === 0) continue;
-      counts.hylde++;
       store(p, 'hylde', matches);
     }
-    const dishes = storeWeekRecipes(db, week);
+    // Stores we did not reach this time keep what is still valid from the last week we did.
+    for (const s of STORES) {
+      if (!fetched.has(s.id)) carryForward(db, week, s.id, 'avis', nowIso);
+      if (!shelfFetched.has(s.id)) carryForward(db, week, s.id, 'hylde', nowIso);
+    }
+    const counts = { tilbud: 0, fast: 0, hylde: 0 };
+    for (const r of db.prepare('SELECT kind, COUNT(*) AS n FROM offers WHERE week = ? GROUP BY kind').all(week)) {
+      counts[r.kind] = r.n;
+    }
+    if (counts.tilbud + counts.fast === 0) throw new Error(`Ingen tilbud hentet. ${errors.join('; ')}`);
+    const dishes = storeWeekRecipes(db, week, nowIso);
+    for (const [source, ok, note] of runs) upsertRun.run(source, nowIso, ok, note);
     db.prepare('INSERT OR REPLACE INTO weeks (week, refreshed_at, offer_count, errors) VALUES (?, ?, ?, ?)')
-      .run(week, new Date().toISOString(), counts.tilbud, JSON.stringify(errors));
+      .run(week, nowIso, counts.tilbud, JSON.stringify(errors));
     db.exec('COMMIT');
     log(`  ${counts.tilbud} ugetilbud, ${counts.fast} faste priser, ${counts.hylde} hyldepriser, ${dishes} retter`);
   } catch (err) {
@@ -138,11 +189,34 @@ export async function refreshWeek(db, {
   return week;
 }
 
+// Copy a store's still-valid prices (and their ingredient matches) from the most
+// recent earlier week into this one, unless this week already has some.
+// group: 'avis' (tilbud + fast) or 'hylde'.
+function carryForward(db, week, storeId, group, nowIso) {
+  const kind = group === 'hylde' ? "o.kind = 'hylde'" : "o.kind != 'hylde'";
+  const rowsIn = `FROM offers o WHERE o.week = ? AND o.store_id = ? AND ${kind}`;
+  if (db.prepare(`SELECT 1 ${rowsIn} LIMIT 1`).get(week, storeId)) return;
+  const prev = db.prepare(`SELECT MAX(o.week) AS w FROM offers o WHERE o.week < ? AND o.store_id = ? AND ${kind}`)
+    .get(week, storeId)?.w;
+  if (!prev) return;
+  const valid = '(o.run_till IS NULL OR o.run_till > ?)';
+  db.prepare(`
+    INSERT OR IGNORE INTO offers (id, week, store_id, heading, description, price, pre_price, image, run_from, run_till, kind)
+    SELECT o.id, ?, o.store_id, o.heading, o.description, o.price, o.pre_price, o.image, o.run_from, o.run_till, o.kind
+    ${rowsIn} AND ${valid}
+  `).run(week, prev, storeId, nowIso);
+  db.prepare(`
+    INSERT OR IGNORE INTO offer_matches (offer_id, week, ingredient_id, amount, assumed)
+    SELECT m.offer_id, ?, m.ingredient_id, m.amount, m.assumed
+    FROM offer_matches m JOIN offers o ON o.id = m.offer_id AND o.week = m.week
+    WHERE o.week = ? AND o.store_id = ? AND ${kind} AND ${valid}
+  `).run(week, prev, storeId, nowIso);
+}
+
 const ACTIVE = '(o.run_from IS NULL OR o.run_from <= ?) AND (o.run_till IS NULL OR o.run_till > ?)';
 
 // A dish makes this week's deck when a hero ingredient is in a running avis tilbud.
-function storeWeekRecipes(db, week) {
-  const now = new Date().toISOString();
+function storeWeekRecipes(db, week, now = new Date().toISOString()) {
   const heroOffers = db.prepare(`
     SELECT m.offer_id, o.store_id FROM offer_matches m JOIN offers o ON o.id = m.offer_id AND o.week = m.week
     WHERE m.week = ? AND m.ingredient_id = ? AND o.kind = 'tilbud' AND ${ACTIVE}
@@ -190,15 +264,15 @@ export function weekPayload(db, week) {
   const offers = {};
   const rows = db.prepare(`
     SELECT m.ingredient_id, m.amount, m.assumed, o.id, o.store_id, o.heading, o.price,
-           o.run_from, o.run_till, o.image, o.kind
+           o.pre_price, o.run_from, o.run_till, o.kind
     FROM offer_matches m JOIN offers o ON o.id = m.offer_id AND o.week = m.week
     WHERE m.week = ? AND ${ACTIVE}
   `).all(week, now, now);
   const shelf = {};
   for (const r of rows) {
     const entry = {
-      id: r.id, store: r.store_id, title: r.heading, price: r.price, amount: r.amount,
-      assumed: !!r.assumed, from: r.run_from, until: r.run_till, image: r.image, kind: r.kind
+      id: r.id, store: r.store_id, title: r.heading, price: r.price, prePrice: r.pre_price,
+      amount: r.amount, assumed: !!r.assumed, from: r.run_from, until: r.run_till, kind: r.kind
     };
     if (r.kind === 'hylde') (shelf[r.ingredient_id] ??= []).push(entry);
     else (offers[r.ingredient_id] ??= []).push(entry);
@@ -231,9 +305,13 @@ export function weekPayload(db, week) {
     }])
   );
 
+  // When each source last answered, so the client can say "sidst hentet" per chain.
+  const sources = db.prepare('SELECT source, ran_at, ok, note FROM source_runs').all()
+    .map((r) => ({ id: r.source, ranAt: r.ran_at, ok: !!r.ok, note: r.note }));
+
   return {
     week, refreshedAt: meta?.refreshed_at, generatedAt: now, errors: JSON.parse(meta?.errors ?? '[]'),
-    stores, categories: CATEGORIES, ingredients, recipes, offers
+    sources, stores, categories: CATEGORIES, ingredients, recipes, offers
   };
 }
 

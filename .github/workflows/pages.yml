@@ -1,13 +1,14 @@
 # Static build for GitHub Pages: the week's prices are scraped here and shipped as
 # week.json next to the app, so no server is needed. Runs on every push to main and
-# every 6 hours, like the server's own refresh.
+# once a day (05:17 UTC), like the server's own refresh: at most one fetch per day
+# per source.
 name: GitHub Pages
 
 on:
   push:
     branches: [main]
   schedule:
-    - cron: '17 */6 * * *'
+    - cron: '17 5 * * *'
   workflow_dispatch:
 
 permissions:

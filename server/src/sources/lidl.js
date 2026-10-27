@@ -5,21 +5,19 @@
 // date are everyday prices; tiles with one are offers and come from the avis.
 // Only facts are kept. Same prototype caveat as the other sources.
 
+import { politeFetch } from './http.js';
+
 export const LIDL_STORE_ID = '71c90';
 const PAGES = [
   'https://www.lidl.dk/c/hverdagensfavoritter/a10105653',
   'https://www.lidl.dk/c/madvaerket/a10105652'
 ];
-const UA = 'Mozilla/5.0 (compatible; idebanken-mad-app/0.1; prototype)';
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export async function fetchLidlShelf() {
   const products = new Map();
   for (const url of PAGES) {
-    const res = await fetch(url, { headers: { 'user-agent': UA }, signal: AbortSignal.timeout(20000) });
-    if (!res.ok) throw new Error(`lidl.dk ${new URL(url).pathname}: HTTP ${res.status}`);
+    const res = await politeFetch(url, { accept: 'text/html', label: `lidl.dk ${new URL(url).pathname}` });
     for (const p of parseTiles(await res.text())) products.set(p.id, p);
-    await sleep(300);
   }
   return [...products.values()];
 }

@@ -8,9 +8,10 @@ import { refreshWeek, latestWeek, weekKey, weekPayload, IMAGE_DIR } from './week
 const here = dirname(fileURLToPath(import.meta.url));
 // API_PORT, not PORT: dev tools often set PORT for the web server.
 const PORT = Number(process.env.API_PORT ?? 8787);
-// Chains start new avis on different weekdays, so prices are re-scraped several
-// times a day rather than once a week.
-const REFRESH_HOURS = Number(process.env.REFRESH_HOURS ?? 6);
+// Prices are fetched at most once a day per source (polite towards the chains and
+// Tjek); the hourly check below only triggers a refresh when that day has passed
+// or the ISO week has changed. Offers that end are hidden by their own dates.
+const REFRESH_HOURS = Number(process.env.REFRESH_HOURS ?? 24);
 const db = openDb();
 const app = express();
 
