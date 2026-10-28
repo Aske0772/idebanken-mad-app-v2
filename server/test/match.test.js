@@ -15,7 +15,22 @@ const cases = [
   ['Cremefine madlavning eller piske', ['flode']],
   ['COMBINO Spaghetti', ['pasta']],
   ['Xtra! Jasminris', ['ris']],
-  ['Spisemodne økologiske avocadoer', ['avocado']]
+  ['Spisemodne økologiske avocadoer', ['avocado']],
+  ['Gammeldags oksegrydesteg af bov eller tykkam', ['oksekod_gryde']],
+  ['Lakse- eller torskefars', ['fiskefars']],
+  ['Navito vannameirejer', ['rejer']],
+  ['REMA 1000 Danske rødspættefileter, tunsteaks, rå eller kogte vannameirejer', ['hvid_fisk', 'rejer']],
+  ['Hokkaido', ['graeskar']],
+  ['ØGO økologisk dansk hokkaido græskar', ['graeskar']],
+  ['Økologiske danske hokkaido græskar eller spaghetti squash', ['graeskar']],
+  ['ØGO økologiske danske rødbeder', ['rodbeder']],
+  ['Næmt grønkål', ['groenkaal']],
+  ['Danske æbler', ['aebler']],
+  ['Fejø udvalgte æbler', ['aebler']],
+  ['Økologiske bønner, linser eller kikærter', ['bonner', 'linser', 'kikaerter']],
+  ['Urtekram økologiske belugalinser', ['gronne_linser']],
+  ['Grydesteg af tykkam', ['oksekod_gryde']],
+  ['Schulstad Det gode solsikkerugbrød', ['rugbrod']]
 ];
 
 for (const [heading, expected] of cases) {
@@ -36,7 +51,22 @@ const negatives = [
   'Egelykke paté med champignon/grønne peberkorn',
   'Samyang nudler',
   'Ris cuisine',
-  'RiceUp! zero sugar risbar'
+  'RiceUp! zero sugar risbar',
+  'Halloween græskar',
+  'Græskarhoved lanterne',
+  'Pyntegræskar',
+  'Mamone græskarkerner',
+  'Irma æble- eller bærgløgg',
+  'Urtekram økologisk æblecidereddike',
+  'Næmt granatæblekerner',
+  'Glaseret skinke med grønlangkål',
+  'Coop spareribs eller pulled pork',
+  'Frugtkiks æble&kanel',
+  'RAHBEK INDBAGT FISK ELLER REJER',
+  'Rødbeder u/sukker',
+  'Kohberg Rugbrødsboller',
+  'Rugbrødsblanding',
+  'Grønlandske rejer, kold- eller varmrøget laks'
 ];
 
 for (const heading of negatives) {

@@ -1,7 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { RECIPES } from '../src/recipes.js';
 import { INGREDIENTS } from '../src/ingredients.js';
+
+const DATA_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'data');
 
 test('recipe ids are unique', () => {
   const ids = RECIPES.map((r) => r.id);
@@ -24,6 +29,14 @@ for (const r of RECIPES) {
     assert.ok(['kod', 'fisk', 'vegetar'].includes(r.diet));
   });
 }
+
+test('every recipe has a photo and an image prompt', () => {
+  const prompts = JSON.parse(readFileSync(join(DATA_DIR, 'image-prompts.json'), 'utf8')).dishes;
+  for (const r of RECIPES) {
+    assert.ok(prompts[r.id], `${r.id} has no image prompt`);
+    assert.ok(existsSync(join(DATA_DIR, 'images', `${r.id}.webp`)), `${r.id} has no image`);
+  }
+});
 
 test('vegetarian recipes contain no meat or fish', () => {
   for (const r of RECIPES.filter((x) => x.diet === 'vegetar')) {

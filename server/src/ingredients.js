@@ -97,6 +97,11 @@ export const INGREDIENTS = {
     match: has('medister'),
     not: has('pålæg|færdig|røget|sylte|blodpølse|salami')
   },
+  oksekod_gryde: {
+    name: 'oksekød til gryderet', unit: 'g', cat: 'kod', normal: [600, 80], minAmount: 300,
+    match: has('okse.{0,20}(tern|grydesteg|bov|tykkam|spidsbryst)|oksebov|gullaschkød|gullasch|grydesteg af (bov|tykkam)'),
+    not: has('lam|pålæg|færdig|suppe|ret(?![a-zæøå])|sovs|sauce|hakket|dåse|burger')
+  },
 
   // Fisk
   laks: {
@@ -118,6 +123,16 @@ export const INGREDIENTS = {
     name: 'tun på dåse', unit: 'g', cat: 'kolonial', normal: [185, 15],
     match: word('tun|tunfisk|tun i vand|tun i olie|tunstykker'),
     not: has('salat|mousse|pålæg|kats?emad|hund|snack|sushi|steak')
+  },
+  fiskefars: {
+    name: 'fiskefars', unit: 'g', cat: 'fisk', normal: [400, 40], minAmount: 200,
+    match: has('fiskefars|torskefars|laksefars|sejfars'),
+    not: has('frikadel|færdig|stegt|pålæg|kats?emad')
+  },
+  rejer: {
+    name: 'rejer', unit: 'g', cat: 'fisk', normal: [400, 50], minAmount: 150,
+    match: word('rejer|vannameirejer|kæmperejer|tigerrejer|kutterrejer|kogte rejer|rå rejer'),
+    not: has('salat|tempura|torpedo|paner|indbagt|chips|cocktail|pålæg|i lage|kats?emad|røget|sushi|suppe|krebs|chili-?rejer|snack')
   },
 
   // Mejeri & æg
@@ -295,13 +310,38 @@ export const INGREDIENTS = {
   },
   linser: {
     name: 'røde linser', unit: 'g', cat: 'kolonial', normal: [500, 20],
-    match: word('linser|røde linser|grønne linser|beluga linser'),
-    not: has('kontakt|chips|snack|pasta|suppe')
+    match: word('linser|røde linser'),
+    not: has('kontakt|chips|snack|pasta|suppe|grønne|beluga|puy')
+  },
+  gronne_linser: {
+    name: 'grønne linser eller belugalinser', unit: 'g', cat: 'kolonial', normal: [400, 20],
+    match: has('grønne linser|beluga ?linser|puy ?linser|linser,? grønne'),
+    not: has('kontakt|chips|snack|pasta|suppe|salat')
   },
   porre: {
     name: 'porre', unit: 'stk', cat: 'gront', normal: [1, 6], gPerStk: 250,
     match: word('porre|porrer'),
     not: has('suppe|tærte|frost|farser')
+  },
+  graeskar: {
+    name: 'græskar (hokkaido)', unit: 'stk', cat: 'gront', normal: [1, 20], gPerStk: 1200,
+    match: has('hokkaido|græskar|butternut'),
+    not: has('kerne|frø|hoved|lanterne|pynt|plys|hækle|stage|spøgelse|halloween|familie|ternet|suppe|mos|olie|chips|kage|figur|lys|dekoration|krus|skål')
+  },
+  rodbeder: {
+    name: 'rødbeder', unit: 'g', cat: 'gront', normal: [1000, 15], gPerStk: 150,
+    match: has('rødbede'),
+    not: has('syltede|sukker|skiver|salat|chips|juice|saft|eddike|hummus|pesto|dip|glas|bøf|frikadel|carpaccio')
+  },
+  groenkaal: {
+    name: 'grønkål', unit: 'g', cat: 'gront', normal: [300, 18], gPerStk: 300,
+    match: has('grønkål'),
+    not: has('salat|pesto|chips|frost|frossen|stuvet|skinke|glaseret|tærte|smoothie|juice')
+  },
+  aebler: {
+    name: 'æbler', unit: 'stk', cat: 'gront', normal: [7, 18], gPerStk: 150,
+    match: word('æble|æbler|madæbler|spiseæbler'),
+    not: has('juice|most|gløgg|cider|eddike|kage|chips|tærte|mos|saft|grød|ringe|tørrede|(?<![a-zæøå])is(?![a-zæøå])|sodavand|marmelade|skiver|chutney|drik|snack|kiks')
   },
   citron: {
     name: 'citron', unit: 'stk', cat: 'gront', normal: [1, 4], gPerStk: 110,
@@ -374,6 +414,11 @@ export const INGREDIENTS = {
     name: 'pitabrød', unit: 'stk', cat: 'brod', normal: [6, 14], gPerStk: 70,
     match: has('pita'),
     not: has('chips|snack')
+  },
+  rugbrod: {
+    name: 'rugbrød', unit: 'g', cat: 'brod', normal: [1000, 25],
+    match: has('rugbrød'),
+    not: has('chips|kiks|sandwich|toast|bagemix|bland|boller|mel(?![a-zæøå])|pålæg|smørrebrød|crouton|snack')
   },
   pizzadej: {
     name: 'pizzadej', unit: 'g', cat: 'kolonial', normal: [400, 16],
@@ -454,6 +499,7 @@ export const INGREDIENTS = {
     not: has('sild|salat|bidder|pasta|sauce|ketchup|dressing|kylling|ret|mayo|paste')
   },
   oregano: { name: 'oregano', unit: 'g', cat: 'basis', normal: [10, 7], staple: true, match: word('oregano'), not: has('øko') },
+  laurbaer: { name: 'laurbærblade', unit: 'stk', cat: 'basis', normal: [20, 12], staple: true, match: word('laurbærblade|laurbær'), not: null },
   timian: { name: 'timian', unit: 'g', cat: 'basis', normal: [30, 8], staple: true, match: word('timian|tørret timian'), not: has('øko') },
   chili: {
     name: 'chiliflager', unit: 'g', cat: 'basis', normal: [40, 16], staple: true,

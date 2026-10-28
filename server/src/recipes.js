@@ -610,5 +610,362 @@ export const RECIPES = [
       'Rør smør og revet parmesan i.',
       'Top med de ristede svampe.'
     ]
+  },
+  {
+    id: 'aebleflaesk',
+    title: 'Æbleflæsk',
+    blurb: 'Sprødt flæsk, bløde løg og syrlige æbler på rugbrød.',
+    minutes: 35, diet: 'kod', serves: 4, emoji: '🍎', hue: 4,
+    hero: ['aebler', 'flaesk'],
+    ingredients: [
+      ['flaesk', 500], ['aebler', 4], ['loeg', 2], ['rugbrod', 300], ['krydderurter', 1],
+      ['sukker', 12], ['olie', 15], ['salt', 3], ['peber', 1]
+    ],
+    steps: [
+      'Steg flæsket sprødt på panden ved middel varme, eller i ovnen ved 200° i ca. 25 min.',
+      'Skær løg i ringe og æbler i både uden kernehus.',
+      'Svits løget blødt i lidt af fedtet fra flæsket, tilsæt æblerne og sukkeret og steg 5 min, til æblerne er møre men hele.',
+      'Vend flæsket i, smag til med peber og drys med purløg. Server på rugbrød.'
+    ]
+  },
+  {
+    id: 'braendende-kaerlighed',
+    title: 'Brændende kærlighed',
+    blurb: 'Smørmos med sprød bacon og søde, stegte løg.',
+    minutes: 40, diet: 'kod', serves: 4, emoji: '🥔', hue: 30,
+    hero: ['kartofler', 'bacon'],
+    ingredients: [
+      ['kartofler', 1000], ['bacon', 350], ['loeg', 3], ['maelk', 100], ['smor', 75],
+      ['krydderurter', 1], ['salt', 4], ['peber', 1]
+    ],
+    steps: [
+      'Skræl kartoflerne og kog dem møre, ca. 20 min.',
+      'Steg baconen sprød og tag den op. Steg løg i halve ringe i fedtet ved middel varme i ca. 10 min.',
+      'Hæld vandet fra kartoflerne og mos dem med smør og varm mælk. Smag til med salt og peber.',
+      'Læg mosen på tallerkener, lav en fordybning og fyld den med bacon og løg. Drys med persille.'
+    ]
+  },
+  {
+    id: 'skipperlabskovs',
+    title: 'Skipperlabskovs',
+    blurb: 'Mørt oksekød og kartofler kogt ud til en tyk gryde med smør og purløg.',
+    minutes: 135, diet: 'kod', serves: 4, emoji: '🍲', hue: 22,
+    hero: ['oksekod_gryde', 'kartofler'],
+    ingredients: [
+      ['oksekod_gryde', 800], ['kartofler', 1500], ['loeg', 4], ['laurbaer', 4],
+      ['smor', 75], ['krydderurter', 1], ['salt', 6], ['peber', 2]
+    ],
+    steps: [
+      'Skær kødet i grove tern og brun det i lidt smør i en gryde i et par omgange.',
+      'Tilsæt løg i både, laurbærblade, hele peberkorn og 1 liter vand. Simr under låg i ca. 1½ time.',
+      'Skræl kartoflerne, skær dem i tern og kom dem i gryden. Kog videre i ca. 45 min, til de falder ud.',
+      'Rør kraftigt, så kød og kartofler bliver til en tyk gryde, og smag til med salt.',
+      'Server med en klat smør og masser af hakket purløg.'
+    ]
+  },
+  {
+    id: 'gullasch',
+    title: 'Gullasch med kartoffelmos',
+    blurb: 'Langtidssimret oksekød med paprika og peberfrugt over blød mos.',
+    minutes: 120, diet: 'kod', serves: 4, emoji: '🥘', hue: 8,
+    hero: ['oksekod_gryde', 'peberfrugt'],
+    ingredients: [
+      ['oksekod_gryde', 500], ['loeg', 2], ['hvidloeg', 1], ['peberfrugt', 1], ['gulerod', 2],
+      ['hakkede_tomater', 400], ['kartofler', 1000], ['maelk', 150], ['smor', 90],
+      ['hvedemel', 15], ['paprika', 8], ['spidskommen', 1], ['laurbaer', 2], ['bouillon', 1],
+      ['salt', 5], ['peber', 1]
+    ],
+    steps: [
+      'Skær kødet i tern, vend det i mel og paprika og brun det i smør i et par omgange.',
+      'Tilsæt hakket løg og hvidløg, gulerod i skiver, tomater, spidskommen, laurbær, bouillon og 4 dl vand.',
+      'Simr under låg ved svag varme i ca. 1½ time. Kom peberfrugt i tern i de sidste 20 min.',
+      'Kog kartoflerne og mos dem med smør og varm mælk.',
+      'Smag gullaschen til og server over mosen.'
+    ]
+  },
+  {
+    id: 'fyldte-peberfrugter',
+    title: 'Fyldte peberfrugter',
+    blurb: 'Peberfrugter fyldt med krydret oksekød og ris, bagt med ost.',
+    minutes: 45, diet: 'kod', serves: 4, emoji: '🫑', hue: 6,
+    hero: ['peberfrugt'],
+    ingredients: [
+      ['peberfrugt', 4], ['hakket_okse', 400], ['ris', 125], ['loeg', 1], ['hvidloeg', 2],
+      ['gulerod', 2], ['hakkede_tomater', 400], ['revet_ost', 60], ['salat', 100],
+      ['spidskommen', 2], ['paprika', 3], ['olie', 15], ['salt', 4], ['peber', 1]
+    ],
+    steps: [
+      'Kog risene. Varm ovnen op til 200°.',
+      'Brun kødet med hakket løg, hvidløg og revet gulerod. Rør krydderier og tomater i og simr 5 min. Vend risene i.',
+      'Skær toppen af peberfrugterne, fjern kernerne og fyld dem med kødet. Stil dem i et fad med lidt vand i bunden.',
+      'Drys med ost og bag ca. 20 min, til peberfrugterne er møre. Server med salat.'
+    ]
+  },
+  {
+    id: 'porrekylling-i-fad',
+    title: 'Kylling i fad med porrer',
+    blurb: 'Kylling bagt i flødesauce med porrer, svampe og bacon.',
+    minutes: 45, diet: 'kod', serves: 4, emoji: '🍗', hue: 70,
+    hero: ['porre'],
+    ingredients: [
+      ['kyllingebryst', 600], ['porre', 2], ['bacon', 150], ['champignon', 250], ['loeg', 1],
+      ['hvidloeg', 2], ['flode', 500], ['bouillon', 1], ['ris', 300], ['krydderurter', 1],
+      ['olie', 15], ['salt', 3], ['peber', 1]
+    ],
+    steps: [
+      'Varm ovnen op til 200° og sæt risene over.',
+      'Brun kyllingen hurtigt på begge sider og læg den i et ovnfast fad.',
+      'Steg bacon, løg, hvidløg, svampe og porrer i ringe på samme pande. Hæld fløde og bouillon ved og lad det koge op.',
+      'Hæld saucen over kyllingen og bag ca. 25 min, til kyllingen er gennemstegt.',
+      'Drys med persille og server med ris.'
+    ]
+  },
+  {
+    id: 'mango-kyllingecurry',
+    title: 'Kyllingecurry med mango',
+    blurb: 'Kokoskarry med kylling, ingefær og søde mangostykker.',
+    minutes: 30, diet: 'kod', serves: 4, emoji: '🥭', hue: 40,
+    hero: ['mango'],
+    ingredients: [
+      ['kyllingebryst', 500], ['mango', 1], ['kokosmaelk', 400], ['loeg', 1], ['hvidloeg', 2],
+      ['ingefaer', 15], ['peberfrugt', 1], ['forarsloeg', 1], ['ris', 300], ['karry', 10],
+      ['bouillon', 1], ['olie', 15], ['salt', 4]
+    ],
+    steps: [
+      'Sæt risene over.',
+      'Svits hakket løg, hvidløg og revet ingefær i olie, tilsæt karry og rist et minut.',
+      'Tilsæt kylling i tern, peberfrugt i strimler, kokosmælk og bouillon. Simr 15 min.',
+      'Vend mango i tern i lige før servering, så den bare bliver lun.',
+      'Server over ris med forårsløg på toppen.'
+    ]
+  },
+  {
+    id: 'groenkaalspasta',
+    title: 'Pasta med grønkål og bacon',
+    blurb: 'Sprød bacon, grønkål og bløde tomater vendt med pasta.',
+    minutes: 25, diet: 'kod', serves: 4, emoji: '🥬', hue: 100,
+    hero: ['groenkaal'],
+    ingredients: [
+      ['pasta', 400], ['groenkaal', 150], ['bacon', 200], ['tomater', 400], ['hvidloeg', 2],
+      ['oregano', 1], ['olie', 30], ['salt', 4], ['peber', 1]
+    ],
+    steps: [
+      'Kog pastaen i godt saltet vand.',
+      'Steg baconen sprød og tag den op.',
+      'Steg halverede tomater og hvidløg i olie med oregano, til tomaterne bliver bløde.',
+      'Tilsæt grønkål uden stilke og steg 2–3 min, til den falder sammen.',
+      'Vend pasta og bacon i med lidt pastavand, og smag til med salt og peber.'
+    ]
+  },
+  {
+    id: 'porretaerte',
+    title: 'Porretærte med bacon',
+    blurb: 'Sprød hjemmelavet bund med porrer, bacon og æggestand.',
+    minutes: 75, diet: 'kod', serves: 4, emoji: '🥧', hue: 56,
+    hero: ['porre'],
+    ingredients: [
+      ['hvedemel', 180], ['smor', 100], ['porre', 2], ['bacon', 150], ['aeg', 4],
+      ['flode', 100], ['maelk', 100], ['salat', 150], ['salt', 3], ['peber', 1]
+    ],
+    steps: [
+      'Smuldr mel, koldt smør og en knivspids salt sammen, saml dejen med 3 spsk koldt vand og læg den på køl i 30 min.',
+      'Rul dejen ud i en tærteform, prik bunden og forbag den 10 min ved 185°.',
+      'Steg baconen, og svits porrerne i tynde ringe i fedtet.',
+      'Fordel porrer og bacon i bunden. Pisk æg, fløde, mælk, salt og peber og hæld over.',
+      'Bag ca. 30 min, til fyldet er stivnet. Server med salat.'
+    ]
+  },
+  {
+    id: 'fiskefrikadeller',
+    title: 'Fiskefrikadeller med gulerodssalat',
+    blurb: 'Gyldne fiskefrikadeller, kartofler og frisk råkost med æble.',
+    minutes: 45, diet: 'fisk', serves: 4, emoji: '🐟', hue: 32,
+    hero: ['fiskefars', 'gulerod'],
+    ingredients: [
+      ['fiskefars', 500], ['aeg', 1], ['loeg', 1], ['maelk', 100], ['hvedemel', 25],
+      ['krydderurter', 1], ['kartofler', 1000], ['gulerod', 4], ['aebler', 2], ['citron', 1],
+      ['honning', 15], ['smor', 25], ['olie', 15], ['salt', 5], ['peber', 1]
+    ],
+    steps: [
+      'Rør fiskefarsen med æg, revet løg, mel, mælk, hakket dild, salt og peber. Lad den hvile koldt i 30 min.',
+      'Kog kartoflerne.',
+      'Riv gulerødder og æbler groft og vend dem med citronsaft og honning.',
+      'Form frikadeller med en ske og steg dem i smør og olie ved middel varme, ca. 5 min på hver side.',
+      'Server med kartofler, råkost og citronbåde.'
+    ]
+  },
+  {
+    id: 'rejepasta',
+    title: 'Pasta med rejer, hvidløg og chili',
+    blurb: 'Hurtig pasta med rejer, citron og frisk persille.',
+    minutes: 20, diet: 'fisk', serves: 4, emoji: '🦐', hue: 12,
+    hero: ['rejer'],
+    ingredients: [
+      ['pasta', 400], ['rejer', 300], ['hvidloeg', 3], ['citron', 1], ['krydderurter', 1],
+      ['chili', 1], ['olie', 45], ['salt', 4], ['peber', 1]
+    ],
+    steps: [
+      'Kog pastaen i godt saltet vand og gem 1 dl af kogevandet.',
+      'Svits hakket hvidløg og chili i olie ved lav varme i 2 min.',
+      'Tilsæt rejerne og steg dem 1–3 min, til de lige er gennemstegte.',
+      'Vend pasta, pastavand, revet citronskal, citronsaft og hakket persille i. Smag til med salt og peber.'
+    ]
+  },
+  {
+    id: 'laksepasta-broccoli',
+    title: 'Pasta med laks og broccoli',
+    blurb: 'Saftig laks og sprød broccoli i en let citronflødesauce.',
+    minutes: 30, diet: 'fisk', serves: 4, emoji: '🍝', hue: 150,
+    hero: ['laks', 'broccoli'],
+    ingredients: [
+      ['pasta', 400], ['laks', 500], ['broccoli', 1], ['flode', 250], ['citron', 1],
+      ['krydderurter', 1], ['olie', 15], ['salt', 4], ['peber', 1]
+    ],
+    steps: [
+      'Kog pastaen. Kom broccolibuketterne i gryden de sidste 3 min.',
+      'Steg laksen i tern i olie et par minutter, til den lige er gennemstegt.',
+      'Hæld fløde, revet citronskal og lidt citronsaft på panden og lad det koge op.',
+      'Vend pasta og broccoli forsigtigt i saucen og drys med persille.'
+    ]
+  },
+  {
+    id: 'fiskefad-spinat',
+    title: 'Fiskefad med spinat og mos',
+    blurb: 'Hvid fisk og spinat i cremet sauce under et låg af gylden kartoffelmos.',
+    minutes: 60, diet: 'fisk', serves: 4, emoji: '🥧', hue: 190,
+    hero: ['hvid_fisk', 'spinat'],
+    ingredients: [
+      ['hvid_fisk', 500], ['spinat', 400], ['kartofler', 800], ['maelk', 400], ['smor', 50],
+      ['hvedemel', 25], ['revet_ost', 75], ['citron', 1], ['salt', 5], ['peber', 1]
+    ],
+    steps: [
+      'Kog kartoflerne og mos dem med halvdelen af smørret og 1 dl mælk. Varm ovnen op til 200°.',
+      'Lad spinaten falde sammen i en tør gryde og pres vandet fra.',
+      'Lav en sauce af resten af smørret, mel og 3 dl mælk. Smag til med citronskal, salt og peber.',
+      'Læg fisk i stykker og spinat i et fad, hæld saucen over og fordel mosen ovenpå.',
+      'Drys med ost og bag ca. 30 min, til toppen er gylden.'
+    ]
+  },
+  {
+    id: 'kartoffel-porresuppe',
+    title: 'Kartoffel-porresuppe',
+    blurb: 'Fløjlsblød suppe med porre, purløg og sprøde rugbrødsterninger.',
+    minutes: 30, diet: 'vegetar', serves: 4, emoji: '🥣', hue: 80,
+    hero: ['porre', 'kartofler'],
+    ingredients: [
+      ['kartofler', 1000], ['porre', 3], ['loeg', 1], ['bouillon', 2], ['flode', 100],
+      ['rugbrod', 150], ['krydderurter', 1], ['smor', 15], ['salt', 4], ['peber', 1]
+    ],
+    steps: [
+      'Svits løg og porrer i ringe i smør, uden at de tager farve.',
+      'Tilsæt kartofler i tern, grøntsagsbouillon og 1,2 l vand. Simr ca. 15 min, til kartoflerne er møre.',
+      'Blend suppen glat, rør fløden i og smag til med salt og peber.',
+      'Rist rugbrød i tern på en tør pande og server på suppen med hakket purløg.'
+    ]
+  },
+  {
+    id: 'graeskarsuppe',
+    title: 'Græskarsuppe med ingefær',
+    blurb: 'Cremet hokkaidosuppe med en varm tone af ingefær og chili.',
+    minutes: 35, diet: 'vegetar', serves: 4, emoji: '🎃', hue: 28,
+    hero: ['graeskar'],
+    ingredients: [
+      ['graeskar', 1], ['kartofler', 200], ['loeg', 1], ['hvidloeg', 2], ['ingefaer', 10],
+      ['bouillon', 2], ['flode', 100], ['chili', 1], ['olie', 15], ['salt', 4], ['peber', 1]
+    ],
+    steps: [
+      'Skær græskarret i tern uden kerner. Skrællen på hokkaido kan blive på.',
+      'Svits løg, hvidløg og revet ingefær i olie, tilsæt græskar, kartoffel i tern og chili.',
+      'Hæld grøntsagsbouillon og 1 l vand ved og simr ca. 20 min.',
+      'Blend suppen glat, rør fløden i og smag til med salt og peber.'
+    ]
+  },
+  {
+    id: 'graeskarrisotto',
+    title: 'Græskarrisotto',
+    blurb: 'Cremet risotto med ovnbagt hokkaido, salvie og parmesan.',
+    minutes: 45, diet: 'vegetar', serves: 4, emoji: '🍚', hue: 36,
+    hero: ['graeskar'],
+    ingredients: [
+      ['ris', 350], ['graeskar', 0.5], ['loeg', 1], ['hvidloeg', 2], ['parmesan', 75],
+      ['bouillon', 2], ['smor', 40], ['krydderurter', 1], ['olie', 15], ['salt', 3], ['peber', 1]
+    ],
+    steps: [
+      'Skær græskarret i tern, vend dem i olie og salt og bag ca. 20 min ved 200°.',
+      'Svits løg, hvidløg og ris, og tilsæt varm grøntsagsbouillon lidt ad gangen under omrøring i ca. 18 min.',
+      'Mos halvdelen af græskarret og rør det i risottoen sammen med smør og revet parmesan.',
+      'Top med resten af græskarret og salvieblade sprødstegt i lidt smør.'
+    ]
+  },
+  {
+    id: 'shakshuka',
+    title: 'Shakshuka',
+    blurb: 'Æg pocheret i krydret tomat og peberfrugt, med feta og varmt brød.',
+    minutes: 30, diet: 'vegetar', serves: 4, emoji: '🍳', hue: 10,
+    hero: ['peberfrugt'],
+    ingredients: [
+      ['aeg', 6], ['hakkede_tomater', 800], ['peberfrugt', 2], ['loeg', 2], ['hvidloeg', 3],
+      ['feta', 75], ['pita', 4], ['krydderurter', 1], ['spidskommen', 3], ['paprika', 4],
+      ['chili', 1], ['olie', 15], ['salt', 4], ['peber', 1]
+    ],
+    steps: [
+      'Svits løg, hvidløg og peberfrugt i strimler i olie, til de er bløde.',
+      'Rist spidskommen, paprika og chili med et minut, tilsæt tomaterne og simr ca. 10 min. Smag til.',
+      'Lav små fordybninger i saucen, slå æggene ud i dem og læg låg på. Lad dem stivne i 5–7 min.',
+      'Drys med smuldret feta og persille, og server med lune pitabrød.'
+    ]
+  },
+  {
+    id: 'gulerodssuppe',
+    title: 'Gulerodssuppe med kokos og ingefær',
+    blurb: 'Silkeblød, solgul suppe med kokos, ingefær og lime.',
+    minutes: 35, diet: 'vegetar', serves: 4, emoji: '🥕', hue: 26,
+    hero: ['gulerod'],
+    ingredients: [
+      ['gulerod', 8], ['kokosmaelk', 400], ['loeg', 1], ['hvidloeg', 3], ['ingefaer', 20],
+      ['lime', 1], ['bouillon', 2], ['spidskommen', 2], ['chili', 1], ['olie', 15],
+      ['salt', 4], ['peber', 1]
+    ],
+    steps: [
+      'Svits løg, hvidløg og revet ingefær i olie med spidskommen og chili.',
+      'Tilsæt gulerødder i skiver, grøntsagsbouillon og 8 dl vand. Simr ca. 25 min, til gulerødderne er helt møre.',
+      'Rør kokosmælken i og blend suppen glat.',
+      'Smag til med limesaft, salt og peber.'
+    ]
+  },
+  {
+    id: 'rodbede-linsesalat',
+    title: 'Linsesalat med bagte rødbeder og feta',
+    blurb: 'Lun salat af linser, søde ovnbagte rødbeder og salt feta.',
+    minutes: 45, diet: 'vegetar', serves: 4, emoji: '🫘', hue: 340,
+    hero: ['rodbeder'],
+    ingredients: [
+      ['gronne_linser', 200], ['rodbeder', 600], ['feta', 150], ['salat', 100], ['loeg', 1],
+      ['citron', 1], ['honning', 10], ['krydderurter', 1], ['olie', 45], ['salt', 3], ['peber', 1]
+    ],
+    steps: [
+      'Skræl rødbederne, skær dem i både, vend dem i lidt olie og salt og bag ca. 30 min ved 220°.',
+      'Kog linserne møre i ca. 20 min og hæld vandet fra.',
+      'Rør en dressing af olie, citronsaft, honning, salt og peber, og vend de lune linser i den.',
+      'Vend rødbeder, rødløg i tynde skiver, salat og krydderurter i, og smuldr feta over.'
+    ]
+  },
+  {
+    id: 'blomkaalskarry',
+    title: 'Blomkålskarry med kikærter',
+    blurb: 'Kokoskarry med blomkål, kikærter og spinat over ris.',
+    minutes: 35, diet: 'vegetar', serves: 4, emoji: '🥦', hue: 48,
+    hero: ['blomkaal'],
+    ingredients: [
+      ['blomkaal', 1], ['kikaerter', 400], ['kokosmaelk', 400], ['hakkede_tomater', 400],
+      ['spinat', 100], ['loeg', 1], ['hvidloeg', 2], ['ingefaer', 15], ['ris', 300],
+      ['karry', 10], ['spidskommen', 3], ['bouillon', 1], ['olie', 15], ['salt', 4]
+    ],
+    steps: [
+      'Sæt risene over.',
+      'Svits løg, hvidløg og revet ingefær i olie med karry og spidskommen.',
+      'Tilsæt kokosmælk, tomater, bouillon og blomkål i små buketter. Simr ca. 15 min, til blomkålen er mør.',
+      'Vend skyllede kikærter i og varm igennem. Rør spinaten i til sidst og server over ris.'
+    ]
   }
 ];
