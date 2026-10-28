@@ -1,5 +1,41 @@
 import { useEffect } from 'react';
-import { Minus, Plus } from './icons.jsx';
+import { Minus, Plus, Search, X } from './icons.jsx';
+
+export function SearchField({ value, onChange, placeholder, label }) {
+  return (
+    <div className="search">
+      <Search size={20} className="search-icon" />
+      <input
+        type="search" className="search-input" value={value} placeholder={placeholder} aria-label={label}
+        enterKeyHint="search" autoComplete="off" autoCorrect="off" spellCheck="false"
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+      />
+      {value && (
+        <button type="button" className="search-clear" aria-label="Ryd søgningen" onClick={() => onChange('')}>
+          <X size={16} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Ingredient suggestions under an empty search field.
+export function Suggestions({ title, items, onPick }) {
+  if (items.length === 0) return null;
+  return (
+    <section className="suggest" aria-label={title}>
+      <h2 className="shop-group-title"><span>{title}</span></h2>
+      <ul className="shop-home-list">
+        {items.map((i) => (
+          <li key={i.id}>
+            <button type="button" className="shop-pill" onClick={() => onPick(i.name)}>{i.name}</button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
 export function Sheet({ open, onClose, children, label }) {
   useEffect(() => {

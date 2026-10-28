@@ -8,9 +8,11 @@ import { SwipeView } from './components/SwipeView.jsx';
 import { DishDetail } from './components/DishDetail.jsx';
 import { WeekView } from './components/WeekView.jsx';
 import { ListView } from './components/ListView.jsx';
+import { RecipeSearch } from './components/RecipeSearch.jsx';
+import { PriceSearch } from './components/PriceSearch.jsx';
 import { StorePicker } from './components/StorePicker.jsx';
 import { Sheet, Stepper } from './components/ui.jsx';
-import { Cards, Calendar, List } from './components/icons.jsx';
+import { Cards, Calendar, List, Book, Tag } from './components/icons.jsx';
 
 const PREFS = { onboarded: false, stores: [], people: 2, diet: 'alle', atHome: [], saved: [] };
 // Weekly state is tagged with the ISO week and starts fresh when the avis changes.
@@ -29,6 +31,9 @@ export default function App() {
   const [sheet, setSheet] = useState(null); // { recipe, item?, mode, fromSwipe? }
   const [storesOpen, setStoresOpen] = useState(false);
   const [history, setHistory] = useState([]);
+  // Kept here so a search survives switching tabs.
+  const [recipeQuery, setRecipeQuery] = useState('');
+  const [priceQuery, setPriceQuery] = useState('');
 
   useEffect(() => {
     let fetchedAt = 0;
@@ -155,6 +160,21 @@ export default function App() {
             onReset={() => setState((s) => ({ ...s, seen: s.seen.filter((id) => s.plan.some((p) => p.recipeId === id)) }))}
           />
         )}
+        {tab === 'recipes' && (
+          <RecipeSearch
+            data={data} prefs={prefs} query={recipeQuery} setQuery={setRecipeQuery}
+            onOpen={(recipe) => setSheet({ recipe, mode: 'add' })}
+          />
+        )}
+        {tab === 'prices' && (
+          <PriceSearch
+            data={data} prefs={prefs} query={priceQuery} setQuery={setPriceQuery}
+            onRecipes={(name) => {
+              setRecipeQuery(name);
+              setTab('recipes');
+            }}
+          />
+        )}
         {tab === 'week' && (
           <WeekView
             data={data} plan={state.plan} prefs={prefs} list={list}
@@ -174,6 +194,8 @@ export default function App() {
 
       <nav className="tabbar" aria-label="Hovedmenu">
         <TabButton id="swipe" tab={tab} setTab={setTab} icon={<Cards />} label="Swipe" />
+        <TabButton id="recipes" tab={tab} setTab={setTab} icon={<Book />} label="Opskrifter" />
+        <TabButton id="prices" tab={tab} setTab={setTab} icon={<Tag />} label="Priser" />
         <TabButton id="week" tab={tab} setTab={setTab} icon={<Calendar />} label="Uge" badge={days || null} />
         <TabButton id="list" tab={tab} setTab={setTab} icon={<List />} label="Indkøb" />
       </nav>

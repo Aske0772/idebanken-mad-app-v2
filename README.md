@@ -54,7 +54,9 @@ server/
   src/index.js          GET /api/week, POST /api/refresh, /images
 web/
   src/lib/pricing.js    al prisberegning (hele pakker, billigste butik, delte varer)
-  src/components/       Onboarding, SwipeView (fotokort), DishDetail (glaspanel), WeekView, ListView
+  src/lib/search.js     fritekstsøgning i opskrifter og priser
+  src/components/       Onboarding, SwipeView (fotokort), DishDetail (glaspanel), RecipeSearch,
+                        PriceSearch, WeekView, ListView
 ```
 
 **Hvilke retter vises?** En ret kommer i bunken, når mindst én af dens hero-ingredienser (fx kyllingebryst i kylling i karry) er på tilbud i en af dine butikker. Bunken sorteres efter pris pr. portion, trukket frem af tilbudsdybden (tilbudspris mod avisens førpris eller kædernes hyldepris). Retter du planlagde de to forrige uger hviler bagerst, medmindre de er på et tilbud med mindst 50 % rabat. Historikken gemmes kun på telefonen (`web/src/lib/rank.js`).
@@ -76,6 +78,8 @@ Kun `tilbud` afgør, hvilke retter der kommer i bunken. Vejledende/anslåede bel
 **Friskhed:** serveren henter alt igen højst én gang i døgnet (`REFRESH_HOURS`, standard 24) og ved ugeskift, og tjekker hver time om det er tid. Udløbne tilbud forsvinder af sig selv via deres datoer. En kilde, der fejler eller blokerer, beholder sine sidste gyldige priser, også over et ugeskift. Appen henter nye priser, når den åbnes igen, og hvert 15. minut. "Priser opdateret i dag kl. 10.35" står på uge- og indkøbssiden.
 
 **Billeder:** Læg `<opskrift-id>.jpg|webp|png` i `server/data/images/`, så bruges de automatisk. Indtil da tegner appen en farvet tallerken pr. ret. Prompts til AI-genererede close-up-fotos (Nano Banana Pro via Figma Weave) ligger i `server/data/image-prompts.json`.
+
+**Opskrifter og Priser:** To faner til dem, der ikke vil swipe. *Opskrifter* viser alle retter og kan søges på en vare ("laks" → alle retter med laks), med tilbudsretter i dine butikker først. *Priser* viser, hvad en vare koster i hver butik lige nu, billigst pr. kg/l/stk først, for alle butikker eller kun dine. Begge søger i ugens data, der allerede ligger i appen, så de virker også i den statiske Pages-version. Kun de ca. 70 varer, opskrifterne bruger, har priser.
 
 **Kort og detaljer:** Swipe-kortet viser kun det, der afgør et swipe: foto, titel, tid, pris pr. portion og ugens tilbud. Et tryk på kortet åbner detaljevisningen med dage/personer, pris, basisvarer og fanerne Ingredienser og Opskrift. Hjertet gemmer retten under fanen "Gemte". "Erstat" lader den nye ret tage pladsen for en ret i ugen (den overtager dens dage og personer, og den gamle kommer tilbage i bunken); når ugen ville gå over 7 aftener, er "Erstat en ret" hovedknappen.
 
